@@ -169,4 +169,21 @@ I have used Cobra without Viper once, but almost everything I write needs a conf
 
 ---
 
+## Ok, but who uses stuff like this?
+
+---
+
+- Kubernetes
+- Hugo
+- etcd
+- Moby
+- Docker
+- OpenShift
+- CockroachDB
+- and more
+
+From https://github.com/spf13/cobra
+
+---
+
 # Any More Questions?
