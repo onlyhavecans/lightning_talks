@@ -1,0 +1,257 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>My Favorite Programming Serpents</title>
+
+    <link rel="stylesheet" href="reveal.js/css/reset.css">
+    <link rel="stylesheet" href="reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="reveal.js/css/theme/black.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="reveal.js/lib/css/monokai.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal.js/css/print/pdf.css' : 'reveal.js/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <H3>My Favorite Programming Serpents</H3>
+          <p>
+            <em>that are not python</em>
+          </p>
+        </section>
+
+        <section>
+          A Golang talk
+        </section>
+
+        <section>
+          How <em>does</em> someone go?
+        </section>
+
+        <section>
+          $ vim main.go
+        </section>
+
+        <section>
+          <H3>No wait.</H3>
+          How do I <em>maintainably</em> go?
+        </section>
+
+        <section>
+          <ul>
+            <li>/Makefile</li>
+            <li>/cli</li>
+            <ul>
+              <li>main.go</li>
+            </ul>
+            <li>/bin</li>
+            <ul>
+              <li>probablyImportant.rb</li>
+            </ul>
+            <li>/server</li>
+            <ul>
+              <li>runThis.go</li>
+            </ul>
+            <li>/lib</li>
+            <ul>
+              <li>env.go</li>
+              <li>logging.go</li>
+              <li>config.go</li>
+              <li>configButOnlyForRunThis.go</li>
+            </ul>
+          </ul>
+        </section>
+
+        <section>
+          <H1>UGH</H1>
+        </section>
+
+        <section>
+          <H2>Cobra &amp; Viper</H2>
+          An Alternative Solution
+        </section>
+
+        <section>
+          <H2>Step 1: Cobra</H2>
+          <p class="fragment">
+            $ cobra init .
+          </p>
+          <ul class="fragment">
+            <li>main.go <span style="color: #808080"># Don't touch me</span></li>
+            <li>cmd/</li>
+            <ul>
+              <li>root.go</li>
+              <li>server.go</li>
+              <li>cert.go</li>
+            </ul>
+            <li>lib/**</li>
+          </ul>
+        </section>
+
+        <section>
+          <H3>One binary, Many Commands:</H3>
+          <ul>
+            <li>redirector</li>
+            <li>redirector server</li>
+            <li>redirector cert</li>
+          </ul>
+        </section>
+
+        <section>
+          <H3>Where is my Makefile?</H3>
+          <p class="fragment">
+            $ go build .
+          </p>
+          <p class="fragment">
+            <em>ok, maybe you still want one</em>
+          </p>
+        </section>
+
+        <section>
+          <H2>What about configuration?</H2>
+        </section>
+
+        <section>
+          Who wants to write code parse &amp; merge
+          <ol>
+            <li class="fragment">config files</li>
+            <li class="fragment">command line flags</li>
+            <li class="fragment">environment variables</li>
+          </ol>
+        </section>
+
+        <section>
+          <H2>Step 2: Viper</H2>
+          <pre>
+            <code class="golang" data-trim data-line-numbers="3,7,10">
+              // vim config.toml
+
+              viper.SetConfigName("config")
+              viper.AddConfigPath("/etc/app/")
+              viper.AddConfigPath(".")
+
+              viper.SetDefault("https_port", 8443)
+
+              err := viper.ReadInConfig()
+              port := viper.GetInt("https_port")
+            </code>
+          </pre>
+        </section>
+
+        <section>
+          Wait, you didn't tell Viper it is a toml
+          <pre>
+            <code class="hljs golang" data-trim>
+              // vim config.toml
+              viper.SetConfigName("config")
+            </code>
+          </pre>
+          <p class="fragment">
+            Viper automatically checks for all formats
+          </p>
+          <p class="fragment">
+            ...and parses them appropiately
+          </p>
+        </section>
+
+        <section>
+          What about Environment Variables?
+          <pre>
+              <code class="hljs golang" data-trim>
+              // export REDIRECTOR_HTTPS_PORT=443
+
+              viper.SetEnvPrefix("REDIRECTOR_")
+              viper.AutomaticEnv()
+              port := viper.GetInt("https_port")
+              </code>
+          </pre>
+        </section>
+
+        <section>
+          And my command line flags!?
+          <pre>
+              <code class="hljs golang" data-trim>
+                // redirector --https 443
+
+                serverCmd.Flags().Int("https", 443, "Port to run https on")
+                viper.BindPFlag("https_port", serverCmd.Flags().Lookup("https"))
+              </code>
+          </pre>
+        </section>
+
+        <section>
+          <p>
+            So you are telling me these two will handle…
+            <span class="fragment">my application's structure, </span>
+            <span class="fragment">all my configuration management, </span>
+            <span class="fragment">and allow for well isolated components of my application to be run seperately?</span>
+          </p>
+          <H2 class="fragment">Yes</H2>
+        </section>
+
+        <section>
+          <H2>Questions?</H2>
+          <H3 class="fragment">Wait I have a question!</H3>
+        </section>
+
+        <section>
+          <H2>Do I have to use both?</H2>
+          <H3 class="fragment">No Way!</H3>
+          <p class="fragment">
+            On established simple apps I have replaced my config handling w/ viper
+          </p>
+        </section>
+
+        <section>
+          <H3>Ok, but who uses stuff like this?</H3>
+          <ul>
+            <li class="fragment">Kubernetes</li>
+            <li class="fragment">Hugo</li>
+            <li class="fragment">etcd</li>
+            <li class="fragment">Moby</li>
+            <li class="fragment">Docker</li>
+            <li class="fragment">OpenShift</li>
+            <li class="fragment">CockroachDB</li>
+            <li class="fragment">and more</li>
+          </ul>
+        </section>
+
+        <section>
+          <H1>Any More Questions?</H1>
+        </section>
+
+      </div>
+    </div>
+
+    <script src="reveal.js/js/reveal.js"></script>
+
+    <script>
+      // More info about config & dependencies:
+      // - https://github.com/hakimel/reveal.js#configuration
+      // - https://github.com/hakimel/reveal.js#dependencies
+      Reveal.initialize({
+        hash: true,
+        controls: false,
+        progress: true,
+        dependencies: [
+          { src: 'reveal.js/plugin/markdown/marked.js' },
+          { src: 'reveal.js/plugin/markdown/markdown.js' },
+          { src: 'reveal.js/plugin/highlight/highlight.js' },
+          { src: 'reveal.js/plugin/notes/notes.js', async: true }
+        ]
+      });
+    </script>
+  </body>
+</html>
